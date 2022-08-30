@@ -11,32 +11,29 @@ export const MintNFT = () => {
 //----------------------- Upload Image------------------------------------------
 
     async function uploadImage(e){
-        const browserFiles = e.target.files;
-        setImage(browserFiles);
+        const browserFile = e.target.files?.[0] ?? null;
+        setImage(browserFile);
     }
 
 //----------------------- upload metadata and create NFT-----------------------
     async function createNFT(e){ 
-            // upload metadata
-        const { uri, metadata } = await metaplex.nfts().uploadMetadata({
+        if (!image) return;
+
+        // upload metadata
+        const { uri } = await metaplex.nfts().uploadMetadata({
             name: "My NFT",
-            image: await toMetaplexFileFromBrowser(image), // same error
-            //image: await toMetaplexFileFromBrowser(image[0]), // same error
-     
-        });
+            image: await toMetaplexFileFromBrowser(image),
+        }).run();
         console.log("URI::", uri);
       
         // Create NFT
-        // const { nft } = await metaplex.nfts().create({
-        //   uri: uri,
-        // });
-      
-        // console.log(nft.mint.toBase58());
+        const { nft } = await metaplex.nfts().create({
+            uri: uri,
+            name: "My NFT",
+            sellerFeeBasisPoints: 500, // 5% royalties.
+        }).run();
+        console.log(nft.address.toBase58());
     }
-
-// Unhandled Runtime Error
-// TypeError: (0 , _metaplex_foundation_js__WEBPACK_IMPORTED_MODULE_5__.toMetaplexFileFromBrowser) is not a funct
-
 
 //--------------------------- Same ERROR for another function --------------------------------
 
